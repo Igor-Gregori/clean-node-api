@@ -1,6 +1,7 @@
 import { SingUpController } from './signup'
 import { MissingParamError } from './errors/missing-param-error'
 import { InvalidParamError } from './errors/invalid-param-error'
+import { ServerError } from './errors/server-error'
 import { EmailValidator } from './protocols/email-validator'
 
 interface SutTypes {
@@ -81,22 +82,6 @@ describe('SingUp Controller', () => {
 
   test('Should return 400 if an invalid email is provided', () => {
     const { sut, emailValidatorStub } = makeSut()
-    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
-    const invalidEmailTest = 'invalid_email@mail.com'
-    const httpRequest = {
-      body: {
-        name: 'any_name',
-        email: invalidEmailTest,
-        password: 'any_password',
-        passwordConfirmation: 'any_password'
-      }
-    }
-    sut.handle(httpRequest)
-    expect(isValidSpy).toHaveBeenCalledWith(invalidEmailTest)
-  })
-
-  test('Should call email validator if correct email', () => {
-    const { sut, emailValidatorStub } = makeSut()
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
     const httpRequest = {
       body: {
@@ -109,6 +94,43 @@ describe('SingUp Controller', () => {
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('email'))
+  })
+
+  test('Should call email validator with correct email', () => {
+    const { sut, emailValidatorStub } = makeSut()
+    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
+    const emailTest = 'invalid_email@mail.com'
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: emailTest,
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    sut.handle(httpRequest)
+    expect(isValidSpy).toHaveBeenCalledWith(emailTest)
+  })
+
+  test('Should return 500 if EmailValidator throws', () => {
+    class EmailValidatorStub implements EmailValidator {
+      isValid (email: string): boolean {
+        throw new Error()
+      }
+    }
+    const emailValidatorStub = new EmailValidatorStub()
+    const sut = new SingUpController(emailValidatorStub)
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 
   test('Should return 200 if all params is provided', () => {
