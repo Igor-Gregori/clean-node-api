@@ -81,6 +81,22 @@ describe('SingUp Controller', () => {
 
   test('Should return 400 if an invalid email is provided', () => {
     const { sut, emailValidatorStub } = makeSut()
+    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
+    const invalidEmailTest = 'invalid_email@mail.com'
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: invalidEmailTest,
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    sut.handle(httpRequest)
+    expect(isValidSpy).toHaveBeenCalledWith(invalidEmailTest)
+  })
+
+  test('Should call email validator if correct email', () => {
+    const { sut, emailValidatorStub } = makeSut()
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
     const httpRequest = {
       body: {
