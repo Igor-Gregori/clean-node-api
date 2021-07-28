@@ -1,11 +1,11 @@
-import { SingUpController } from './signup'
+import { SignUpController } from './signup'
 import { MissingParamError } from './errors/missing-param-error'
 import { InvalidParamError } from './errors/invalid-param-error'
 import { ServerError } from './errors/server-error'
 import { EmailValidator } from './protocols/email-validator'
 
 interface SutTypes {
-  sut: SingUpController
+  sut: SignUpController
   emailValidatorStub: EmailValidator
 }
 
@@ -16,14 +16,14 @@ const makeSut = (): SutTypes => {
     }
   }
   const emailValidatorStub = new EmailValidatorStub()
-  const sut = new SingUpController(emailValidatorStub)
+  const sut = new SignUpController(emailValidatorStub)
   return {
     sut,
     emailValidatorStub
   }
 }
 
-describe('SingUp Controller', () => {
+describe('SignUp Controller', () => {
   test('Should return 400 if no name is provided', () => {
     const { sut } = makeSut()
     const httpRequest = {
@@ -119,7 +119,7 @@ describe('SingUp Controller', () => {
       }
     }
     const emailValidatorStub = new EmailValidatorStub()
-    const sut = new SingUpController(emailValidatorStub)
+    const sut = new SignUpController(emailValidatorStub)
     const httpRequest = {
       body: {
         name: 'any_name',

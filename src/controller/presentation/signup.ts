@@ -7,7 +7,7 @@ import { EmailValidator } from './protocols/email-validator'
 import { InvalidParamError } from './errors/invalid-param-error'
 import { ServerError } from './errors/server-error'
 
-export class SingUpController implements Controller {
+export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator
 
   constructor (emailValidator: EmailValidator) {
