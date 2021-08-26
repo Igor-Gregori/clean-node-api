@@ -1,5 +1,5 @@
 import { DbAddAccount } from './db-add-account'
-import { Encrypter } from '../../protocols/encrypter'
+import { Encrypter } from './db-add-account-protocols'
 
 interface SutTypes {
   sut: DbAddAccount
@@ -7,8 +7,8 @@ interface SutTypes {
 }
 
 const makeEncrypter = (): Encrypter => {
-  class EncrypterStub implements Encrypter{
-    async encrypt (value: string): Promise<string> {
+  class EncrypterStub implements Encrypter {
+    async encrypt (): Promise<string> {
       return await new Promise<string>(resolve => resolve('hashed_password'))
     }
   }
@@ -44,7 +44,7 @@ describe('DbAddAccount Usecase', () => {
       email: 'valid_email',
       password: 'valid_password'
     }
-    const promisse = sut.add(accountData)
-    await expect(promisse).rejects.toThrow()
+    const promise = sut.add(accountData)
+    await expect(promise).rejects.toThrow()
   })
 })
